@@ -9,5 +9,8 @@ connectDB();
 const app: Express = express();
 const port = process.env.PORT || 5000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 app.use("/api/blog", blogRouter);
 app.listen(port, () => console.log(`Running on port ${port}`));
