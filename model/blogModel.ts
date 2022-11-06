@@ -1,7 +1,13 @@
-import mongoose from "mongoose";
+import { IBlog } from "../interfaces/interface";
+import { model, Schema } from "mongoose";
 
-const blogSchema = new mongoose.Schema(
+const blogSchema = new Schema<IBlog>(
   {
+    user: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
     title: {
       type: String,
       required: [true, "Please add a title field"],
@@ -16,4 +22,4 @@ const blogSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Blog", blogSchema);
+export default model<IBlog>("Blog", blogSchema);
