@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Response } from "express";
 import { compare, genSalt, hash } from "bcryptjs";
 import { IGetUserAuthInfoRequest } from "../interfaces/interface";
 import User from "../model/userModel";
@@ -84,10 +84,25 @@ const loginUser = async (req: IGetUserAuthInfoRequest, res: Response) => {
   }
 };
 
-const getUserDetail = (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "userDetail Route",
-  });
+const getUserDetail = async (req: IGetUserAuthInfoRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user) {
+      res.status(200).json({
+        message: "User details",
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: "No detail found",
+    });
+  }
 };
 
 const generateToken = (id: string) => {
