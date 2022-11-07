@@ -1,12 +1,14 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import User from "../model/userModel";
+import { IGetUserAuthInfoRequest } from "../interfaces/interface";
 import Blog from "../model/blogModel";
 
-const getBlogs = async (req: Request, res: Response) => {
-  const blogs = await Blog.find();
+const getBlogs = async (req: IGetUserAuthInfoRequest, res: Response) => {
+  const blogs = await Blog.find({ user: req.user.id });
   res.status(200).json({ blogs: blogs });
 };
 
-const createBlog = async (req: Request, res: Response) => {
+const createBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
   if (!req.body.title) {
     res.status(400).json({ message: "Please add a title" });
     return;
@@ -20,6 +22,7 @@ const createBlog = async (req: Request, res: Response) => {
     const newBlog = await Blog.create({
       title: req.body.title,
       description: req.body.description,
+      user: req.user.id,
     });
 
     res.status(200).json({
@@ -33,11 +36,28 @@ const createBlog = async (req: Request, res: Response) => {
   }
 };
 
-const updateBlog = async (req: Request, res: Response) => {
+const updateBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
   const blogID = await Blog.findById(req.params.id);
 
   if (!blogID) {
     res.status(400).json({ message: "Post not found!!!" });
+  }
+
+  const user = await User.findById(req.user.id);
+
+  // check for user
+  if (!user) {
+    res.status(401).json({
+      message: "user not found",
+    });
+    return;
+  }
+
+  // make sure the loggedin user matches the goal user
+  if (blogID.user.toString() !== user.id) {
+    res.status(401).json({
+      message: "User not found",
+    });
   }
 
   try {
@@ -52,11 +72,28 @@ const updateBlog = async (req: Request, res: Response) => {
   }
 };
 
-const deleteBlog = async (req: Request, res: Response) => {
+const deleteBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
   const blogID = await Blog.findById(req.params.id);
 
   if (!blogID) {
     res.status(400).json({ message: "Post not found!!!" });
+  }
+
+  const user = await User.findById(req.user.id);
+
+  // check for user
+  if (!user) {
+    res.status(401).json({
+      message: "user not found",
+    });
+    return;
+  }
+
+  // make sure the loggedin user matches the goal user
+  if (blogID.user.toString() !== user.id) {
+    res.status(401).json({
+      message: "User not found",
+    });
   }
 
   try {
