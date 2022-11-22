@@ -64,6 +64,12 @@ const loginUser = async (req: IGetUserAuthInfoRequest, res: Response) => {
   try {
     const user = await User.findOne({ email });
 
+    if (!user) {
+      res.status(403).json({
+        message: "User is not registered",
+      });
+    }
+
     if (user && (await compare(password, user.password))) {
       res.status(200).json({
         message: "Login successful",
