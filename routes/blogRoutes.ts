@@ -3,6 +3,7 @@ import {
   getBlogs,
   createBlog,
   deleteBlog,
+  getSingleBlog,
 } from "../controllers/blog";
 import { Router } from "express";
 import { protect } from "../middlewares/auth";
@@ -10,6 +11,8 @@ import { protect } from "../middlewares/auth";
 const blogRouter = Router();
 // Access:Private
 blogRouter.get("/", protect, getBlogs);
+
+blogRouter.get("/:id", protect, getSingleBlog);
 
 // Access:Private
 blogRouter.post("/", protect, createBlog);

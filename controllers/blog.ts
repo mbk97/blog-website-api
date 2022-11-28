@@ -72,6 +72,36 @@ const updateBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
   }
 };
 
+const getSingleBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
+  const blogID = await Blog.findById(req.params.id);
+
+  if (!blogID) {
+    res.status(400).json({
+      message: "Post not found!!!",
+    });
+    return;
+  }
+
+  const user = await User.findById(req.user.id);
+
+  // make sure the loggedin user matches the goal user
+  if (blogID.user.toString() !== user.id) {
+    res.status(401).json({
+      message: "User not found",
+    });
+    return;
+  }
+
+  try {
+    const singleData = await Blog.findById(req.params.id);
+    res.status(200).json({ singleData, message: "single blog post" });
+  } catch (error) {
+    res.status(400).json({
+      message: error,
+    });
+  }
+};
+
 const deleteBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
   const blogID = await Blog.findById(req.params.id);
 
@@ -106,4 +136,4 @@ const deleteBlog = async (req: IGetUserAuthInfoRequest, res: Response) => {
   }
 };
 
-export { getBlogs, createBlog, updateBlog, deleteBlog };
+export { getBlogs, createBlog, updateBlog, deleteBlog, getSingleBlog };
