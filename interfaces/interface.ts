@@ -5,6 +5,10 @@ export interface IUser {
   password: string;
   email: string;
   _id: string;
+  resetPasswordToken: {
+    data: string;
+    default: string;
+  };
 }
 
 export interface IBlog {

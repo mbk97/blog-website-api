@@ -17,6 +17,7 @@ const blogSchema = new Schema<IBlog>(
       required: [true, "Please add a description field"],
     },
   },
+
   {
     timestamps: true,
   }
