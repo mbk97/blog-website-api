@@ -8,24 +8,22 @@ import nodemailer from "nodemailer";
 const registerUser = async (req: IGetUserAuthInfoRequest, res: Response) => {
   const { name, email, password } = req.body;
 
-  if (!email || !name || !password) {
-    res.status(400).json({
+  if (!name || !email || !password) {
+    return res.status(400).json({
       message: "Please add all fields",
     });
-    return;
   }
 
   try {
-    // check if the mail exists
+    // Check if user exists
     const mailExists = await User.findOne({ email });
     if (mailExists) {
-      res.status(400).json({
-        message: "User already exist",
+      return res.status(400).json({
+        message: "User already exists",
       });
-      return;
     }
 
-    // hash the passwords
+    // Hash password
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);
 
@@ -35,20 +33,24 @@ const registerUser = async (req: IGetUserAuthInfoRequest, res: Response) => {
       password: hashedPassword,
     });
 
-    if (user) {
-      res.status(201).json({
-        message: "Registration successful",
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          token: generateToken(user._id),
-        },
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid user data",
       });
     }
-  } catch (error) {
-    res.status(400).json({
-      message: error,
+
+    return res.status(201).json({
+      message: "Registration successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user._id),
+      },
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      message: error.message || "Internal server error",
     });
   }
 };
