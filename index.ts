@@ -6,12 +6,14 @@ import { userRouter } from "./routes/userRoutes";
 import cors from "cors";
 import morgan from "morgan";
 import logger from "./utility/logger";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
 
 dotenv.config();
 connectDB();
 
 const app: Express = express();
-const port = process.env.PORT || 5000;
+const port = Number(process.env.PORT) || 8080;
 
 console.log("Environment variables:", {
   MONGODB_URI: process.env.MONGODB_URI,
@@ -39,6 +41,8 @@ app.use((req, res, next) => {
 app.use("/api/blog", blogRouter);
 app.use("/api/user", userRouter);
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Error middleware should be LAST
 app.use((err, req, res, next) => {
   logger.error(err.stack);
@@ -47,4 +51,5 @@ app.use((err, req, res, next) => {
     message: "Internal Server Error",
   });
 });
-app.listen(port, () => console.log(`Running on port ${port}`));
+
+app.listen(port, "0.0.0.0", () => console.log(`Running on port ${port}`));
